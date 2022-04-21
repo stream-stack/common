@@ -1,3 +1,19 @@
+/*
+Copyright 2022.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package v1
 
 import (
@@ -6,6 +22,9 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 type LocalPvSpec struct {
 	NodeAffinity      *v1.VolumeNodeAffinity `json:"nodeAffinity,omitempty"`
@@ -16,18 +35,13 @@ type LocalPvSpec struct {
 type StoreStatefulSetSpec struct {
 	Replicas *int32 `json:"replicas,omitempty"`
 	Image    string `json:"image,omitempty"`
-}
-
-type PublisherDeptSpec struct {
-	Replicas *int32 `json:"replicas,omitempty"`
-	Image    string `json:"image,omitempty"`
+	Port     string `json:"port,omitempty"`
 }
 
 // StoreSetSpec defines the desired state of StoreSet
 type StoreSetSpec struct {
-	Volume    LocalPvSpec          `json:"volume,omitempty"`
-	Store     StoreStatefulSetSpec `json:"store,omitempty"`
-	Publisher PublisherDeptSpec    `json:"publisher,omitempty"`
+	Volume LocalPvSpec          `json:"volume,omitempty"`
+	Store  StoreStatefulSetSpec `json:"store,omitempty"`
 }
 
 type LocalPvStatus struct {
@@ -52,12 +66,19 @@ type StoreSetStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	VolumeStatus LocalPvStatus          `json:"volume"`
-	StoreStatus  StoreStatefulSetStatus `json:"Store"`
-	Ready        bool                   `json:"ready"`
+	StoreStatus  StoreStatefulSetStatus `json:"store"`
+	Status       string                 `json:"status"`
 }
 
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+const StoreSetStatusReady = `ready`
+const StoreSetStatusPVCreating = `PVCreating`
+const StoreSetStatusStoreSetSvcCreating = `StoreSetSvcCreating`
+const StoreSetStatusStoreSetStsCreating = `StoreSetStsCreating`
+
+//+kubebuilder:object:root=true
+//+kubebuilder:subresource:status
+
+// StoreSet is the Schema for the storesets API
 type StoreSet struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -66,7 +87,9 @@ type StoreSet struct {
 	Status StoreSetStatus `json:"status,omitempty"`
 }
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
+
+// StoreSetList contains a list of StoreSet
 type StoreSetList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
