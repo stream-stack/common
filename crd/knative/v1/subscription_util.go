@@ -9,7 +9,7 @@ func (in Subscriber) String() string {
 		return fmt.Sprintf(`URI:%s`, in.Uri.String())
 	}
 	if in.Service != nil {
-		return fmt.Sprintf("SERVICE:", in.Service.String())
+		return fmt.Sprintf("SERVICE:%s", in.Service.String())
 	}
 	if in.Pod != nil {
 		return fmt.Sprintf("POD:%s", in.Pod.String())
@@ -48,5 +48,5 @@ func (in SubscriberUri) GetTarget() string {
 }
 
 func (in SubscriberService) GetTarget() string {
-	return fmt.Sprintf(`http://%s.%s:%d/%s`, in.Name, in.Namespace, in.Port, in.Path)
+	return fmt.Sprintf(`http://%s.%s:%d%s`, in.Name, in.Namespace, in.Port, in.Path)
 }
