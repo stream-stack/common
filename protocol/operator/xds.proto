@@ -5,6 +5,7 @@ option go_package = "../operator";
 message Partition{
   uint64 begin = 1;
   StoreSet store = 2;
+  uint64 createTime = 3;
 }
 
 message Subscribe{
